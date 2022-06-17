@@ -1,4 +1,4 @@
-# Generate common prefixes and suffixes, and words that match them
+# Common prefixes and suffixes, with examples
 
 This package generates lists of affixes (word prefixes and suffixes) of the desired length, and finds words that match them. It chooses from the most common words in the English language, and can return these affixes and their examples sorted in order of length.
 
@@ -46,4 +46,4 @@ There are a bunch of arguments you can use to tailor the output.
 
 ## Data
 
-The word and frequency data is based on [Peter Norvig's 1/3 million most frequent English words](https://norvig.com/ngrams/count_1w.txt) truncated down to the top 10,000 words. N-grams are calculated based on word prefixes and suffixes, and can be weighed using the count data in this dataset.
+The word and frequency data is based on [Peter Norvig's 1/3 million most frequent English words](https://norvig.com/ngrams/count_1w.txt) truncated down to the top 10,000 words. N-grams are calculated based on word prefixes and suffixes, and are weighted using the count data in this dataset.

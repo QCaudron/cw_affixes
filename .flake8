@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 99
+ignore = E731
+exclude = cw_ngrams/__init__.py
