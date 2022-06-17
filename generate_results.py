@@ -55,7 +55,6 @@ for scenario in scenarios:
         affix_type = "affixes"
 
     filename = Path(
-        "results/"
         f"{ngram_length}-gram"
         f"_{name}"
         f"_{n_affixes}"
@@ -63,7 +62,7 @@ for scenario in scenarios:
         f"{'_sorted' if sort else ''}"
         f"{'_shuffled' if shuffle else ''}"
         ".txt"
-    ).as_posix()
+    )
 
     command = [
         "poetry",
@@ -86,7 +85,7 @@ for scenario in scenarios:
     print(command)
     p = Popen(
         command,
-        stdout=open(filename, "w"),
+        stdout=open("results" / filename, "w"),
     )
     p.wait()
 
@@ -96,7 +95,7 @@ for scenario in scenarios:
     if shuffle:
         list_name += " shuffled"
 
-    readme += f"""- [{list_name}]({filename})\n"""
+    readme += f"""- [{list_name}]({filename.as_posix()})\n"""
 
 with open("results/README.md", "w") as f:
     f.write(readme)
