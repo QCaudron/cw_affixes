@@ -1,6 +1,6 @@
 # Common prefixes and suffixes, with examples
 
-> :information_source: **[Click here to see the results files.](results/README.md).**
+> :information_source: **[Click here to see the results files.](results/README.md) :information_source:**
 
 This package generates lists of affixes (word prefixes and suffixes) of the desired length, and finds words that match them. It chooses from the most common words in the English language, and can return these affixes and their examples sorted in order of length.
 
