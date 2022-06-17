@@ -8,7 +8,7 @@ For instance, in English, many words end in `ING` (doing, being, saying, etc.) a
 
 ## Lists of prefixes and suffixes
 
-If you want to skip running this yourself and just look at some results, [here are a few scenarios you might be interested in](results).
+If you want to skip running this yourself and just look at some results, [here are a few scenarios you might be interested in](results/README.md).
 
 ## Using `cw_ngrams`
 

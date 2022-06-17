@@ -1,7 +1,8 @@
 from pathlib import Path
-from subprocess import call, Popen
+from subprocess import Popen
 
 
+# Set up some base scenarios for both top affixes and random affixes
 top_scenario = {
     "name": "top",
     "n_affixes": 100,
@@ -19,13 +20,20 @@ random_scenario = {
 }
 
 scenarios = []
+readme = "# Results\n\n"
 
+# Create various scenarios
 for base_scenario in [top_scenario, random_scenario]:
     for ngram_length in range(2, 5):
         for prefixes in [True, False]:
             for suffixes in [True, False]:
 
+                # Prefixes only and suffixes only are mutually exclusive
                 if prefixes and suffixes:
+                    continue
+
+                # We don't want randomly-selected 2-grams, they're nonsensical
+                if (ngram_length == 2) and (base_scenario["name"] == "random"):
                     continue
 
                 scenario = base_scenario.copy()
@@ -34,8 +42,7 @@ for base_scenario in [top_scenario, random_scenario]:
                 scenario["suffixes"] = suffixes
                 scenarios.append(scenario)
 
-readme = "# Results\n\n"
-
+# Run each scenario, saving output to a file
 for scenario in scenarios:
 
     name = scenario["name"]
@@ -81,6 +88,7 @@ for scenario in scenarios:
         "--shuffle" if shuffle else None,
     ]
 
+    # Clean up missing pieces from the command
     command = [piece for piece in command if piece is not None]
     print(command)
     p = Popen(
@@ -89,13 +97,14 @@ for scenario in scenarios:
     )
     p.wait()
 
+    # Add a link to this scenario in the results README
     list_name = f"{ngram_length}-letter {name} {affix_type}"
     if sort:
         list_name += " sorted"
     if shuffle:
         list_name += " shuffled"
-
     readme += f"""- [{list_name}]({filename.as_posix()})\n"""
 
+# Save the README after running all scenarios
 with open("results/README.md", "w") as f:
     f.write(readme)
