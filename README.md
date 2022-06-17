@@ -1,14 +1,12 @@
 # Common prefixes and suffixes, with examples
 
+> :information_source: **[Click here to see the results files.](results/README.md).**
+
 This package generates lists of affixes (word prefixes and suffixes) of the desired length, and finds words that match them. It chooses from the most common words in the English language, and can return these affixes and their examples sorted in order of length.
 
 The idea is to generate lists of affixes that you can use to practice n-gram recognition in your CW practice. Between instant character recognition and instant word recognition, there's a space where you can start to hear "sound-bites", or short, common letter combinations. Being able to recognise these n-grams will help you progress in your head-copy.
 
 For instance, in English, many words end in `ING` (doing, being, saying, etc.) and many words start with `TH` (they, them, their, there, these, etc.). `ING` is a 3-gram (three letter) suffix, and `TH` is a 2-gram prefix. If you start recognising the sounds they make (_did-it dah-dit dah-dah-dit_, and _dah di-di-di-dit_), you will have an easier time head-copying at reasonable speeds.
-
-## Lists of prefixes and suffixes
-
-If you want to skip running this yourself and just look at some results, [here are a few scenarios you might be interested in](results/README.md).
 
 ## Using `cw_ngrams`
 
