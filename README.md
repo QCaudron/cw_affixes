@@ -10,7 +10,13 @@ For instance, in English, many words end in `ING` (doing, being, saying, etc.) a
 
 ## Using `cw_ngrams`
 
-This simple Python 3.7+ module should be called via the command-line :
+### Install
+
+You'll need a Python 3.7+ environment. Ensure you have [poetry](https://python-poetry.org/) installed, then simply call `poetry install`.
+
+### Running
+
+The main script should be called via the command-line :
 
 ```bash
 python cw_ngrams.py
@@ -41,6 +47,10 @@ There are a bunch of arguments you can use to tailor the output.
 - `--suffixes` : passing this argument will generate only common suffixes, and words that match those suffixes.
 - `--sort` : Return the output sorted in order of length -- both the examples for each affix, and the total length of the examples. This is helpful if you're practicing and want to increase the difficulty as you go. If you leave this option out, both the affixes and their examples will be printed in order of frequency, meaning the most common ones will come up first.
 - `--shuffle` : Instead of selecting the most common affixes, randomly choose them. Consider this hard mode : you're going to get some fairly random stuff here. In order to avoid getting some completely weird ones (I've seen `INB` as a prefix, with only example word `INBOX`), this option randomly samples from the most common 1,000 affixes.
+- `--similar` : Filter through examples for each affix such that the list of examples is vaguely similar. For the `COL` prefix, you might get `COLOUR, COLOR, COLORS, COLUMNS, COLUMN`.
+- `--dissimilar` : Filter through examples for each affix such that the list of examples is vaguely dissimilar. For the `COL` prefix, you might get `COLLECT, COLLEGE, COLLEGES, COLORADO, COLUMBUS`.
+- `--min_example_length <N>` : Only have examples for each affix that have at least `N` characters.
+- `--max_example_length <N>` : Only have examples for each affix that have at most `N` characters.
 
 ## Data
 
