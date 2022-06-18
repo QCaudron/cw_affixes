@@ -93,5 +93,26 @@ def parse_args() -> argparse.Namespace:
         ),
     )
 
+    # Filter examples by length or similarity
+    parser.add_argument(
+        "--min_example_length",
+        type=int,
+        default=None,
+        help="Only return word examples at least this long.",
+    )
+    parser.add_argument(
+        "--max_example_length",
+        type=int,
+        default=None,
+        help="Only return word examples no longer than this.",
+    )
+    example_similarity = parser.add_mutually_exclusive_group()
+    example_similarity.add_argument(
+        "--similar", action="store_true", help="Return example words that are similar."
+    )
+    example_similarity.add_argument(
+        "--dissimilar", action="store_true", help="Return example words that are dissimilar."
+    )
+
     args = parser.parse_args()
     return args

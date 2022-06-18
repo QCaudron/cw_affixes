@@ -1,3 +1,5 @@
+from typing import Optional
+
 from cw_ngrams import (
     construct_affixes,
     find_examples,
@@ -5,7 +7,6 @@ from cw_ngrams import (
     make_output,
     merge_affixes,
     parse_args,
-    sample_affixes,
 )
 
 
@@ -17,6 +18,10 @@ def main(
     only_suffixes: bool,
     sort_length: bool,
     shuffle: bool,
+    min_example_length: Optional[int],
+    max_example_length: Optional[int],
+    similar: bool,
+    dissimilar: bool,
 ):
 
     # Load words and their frequencies from the data file
@@ -26,13 +31,21 @@ def main(
     prefixes, suffixes = construct_affixes(words, freqs, ngram_length)
 
     # Combine prefix and suffix lists, or keep only the desired affix type
-    all_affixes = merge_affixes(prefixes, suffixes, only_prefixes, only_suffixes)
+    affixes = merge_affixes(prefixes, suffixes, only_prefixes, only_suffixes, shuffle)
 
-    # Grab the most common affixes, or a random subset
-    affixes = sample_affixes(all_affixes, n_affixes, shuffle)
-
-    # Find examples of words that match the affixes
-    examples = find_examples(words, affixes, n_examples, only_prefixes, only_suffixes)
+    # Find examples of words that match the affixes, potentially filtered by criteria
+    examples = find_examples(
+        words,
+        affixes,
+        n_affixes,
+        n_examples,
+        only_prefixes,
+        only_suffixes,
+        min_example_length,
+        max_example_length,
+        similar,
+        dissimilar,
+    )
 
     # Make the output friendly, and sort if requested
     output = make_output(examples, sort_length)
@@ -52,4 +65,8 @@ if __name__ == "__main__":
         only_suffixes=args.only_suffixes,
         sort_length=args.sort_length,
         shuffle=args.shuffle,
+        min_example_length=args.min_example_length,
+        max_example_length=args.max_example_length,
+        similar=args.similar,
+        dissimilar=args.dissimilar,
     )

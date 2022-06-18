@@ -1,54 +1,121 @@
 from pathlib import Path
 from subprocess import Popen
+from typing import Dict, List
 
 
-# Set up some base scenarios for both top affixes and random affixes
-top_scenario = {
+PREAMBLES = {
+    "exercises": "Head-copy exercise :",
+    "generic": "Generic results :",
+}
+
+# Base scenarios
+BASE_SCENARIO = {
     "name": "top",
-    "n_affixes": 100,
+    "ngram_length": 3,
+    "n_affixes": 200,
     "n_examples": 10,
     "sort": False,
     "shuffle": False,
+    "prefixes": False,
+    "suffixes": False,
+    "similar": False,
+    "dissimilar": False,
+    "section": "generic"
 }
+RANDOM_SCENARIO = BASE_SCENARIO.copy()
+RANDOM_SCENARIO.update({"name": "random", "sort": True, "shuffle": True})
 
-random_scenario = {
-    "name": "random",
-    "n_affixes": 200,
-    "n_examples": 10,
-    "sort": True,
-    "shuffle": True,
-}
 
-scenarios = []
-readme = "# Results\n\n"
+def generate_scenarios() -> List[Dict]:
 
-# Create various scenarios
-for base_scenario in [top_scenario, random_scenario]:
-    for ngram_length in range(2, 5):
-        for prefixes in [True, False]:
-            for suffixes in [True, False]:
+    scenarios = []
 
-                # Prefixes only and suffixes only are mutually exclusive
-                if prefixes and suffixes:
-                    continue
+    # Create scenarios from the exercise base scenario
+    for affix in ["prefixes", "suffixes"]:
+        for sim in ["similar", "dissimilar"]:
+            scenario = BASE_SCENARIO.copy()
+            scenario["name"] = sim
+            scenario["section"] = "exercises"
+            scenario[affix] = True
+            scenario[sim] = True
+            scenario["n_examples"] = 5  # 10 is too hard to find with similar / dissimilar
+            scenario["min_word_length"] = 5
+            scenario["max_word_length"] = 8
+            scenarios.append(scenario)
 
-                # We don't want randomly-selected 2-grams, they're nonsensical
-                if (ngram_length == 2) and (base_scenario["name"] == "random"):
-                    continue
+    # Create various scenarios for more generic results
+    for scenario_type in [BASE_SCENARIO, RANDOM_SCENARIO]:
+        for ngram_length in range(2, 5):
+            for prefixes in [True, False]:
+                for suffixes in [True, False]:
 
-                scenario = base_scenario.copy()
-                scenario["ngram_length"] = ngram_length
-                scenario["prefixes"] = prefixes
-                scenario["suffixes"] = suffixes
-                scenarios.append(scenario)
+                    # Prefixes only and suffixes only are mutually exclusive
+                    if prefixes and suffixes:
+                        continue
 
-# Run each scenario, saving output to a file
-for scenario in scenarios:
+                    # We don't want randomly-selected 2-grams, they're nonsensical
+                    if (ngram_length == 2) and (scenario_type["name"] == "random"):
+                        continue
 
-    name = scenario["name"]
+                    scenario = scenario_type.copy()
+                    scenario["ngram_length"] = ngram_length
+                    scenario["prefixes"] = prefixes
+                    scenario["suffixes"] = suffixes
+                    scenarios.append(scenario)
+
+    return scenarios
+
+
+def generate_command_from_scenario(scenario: Dict) -> List[str]:
+
     ngram_length = scenario["ngram_length"]
     n_affixes = scenario["n_affixes"]
     n_examples = scenario["n_examples"]
+    sort = scenario["sort"]
+    shuffle = scenario["shuffle"]
+    prefixes = scenario["prefixes"]
+    suffixes = scenario["suffixes"]
+    similar = scenario["similar"]
+    dissimilar = scenario["dissimilar"]
+    min_word_length = scenario.get("min_word_length")
+    max_word_length = scenario.get("max_word_length")
+
+    command = [
+        "poetry",
+        "run",
+        "python",
+        "cw_ngrams.py",
+        "--ngram_length",
+        str(ngram_length),
+        "--n_affixes",
+        str(n_affixes),
+        "--n_examples",
+        str(n_examples),
+    ]
+
+    if prefixes:
+        command.append("--prefixes")
+    if suffixes:
+        command.append("--suffixes")
+    if sort:
+        command.append("--sort")
+    if shuffle:
+        command.append("--shuffle")
+    if similar:
+        command.append("--similar")
+    if dissimilar:
+        command.append("--dissimilar")
+    if min_word_length is not None:
+        command += ["--min_example_length", str(min_word_length)]
+    if max_word_length is not None:
+        command += ["--max_example_length", str(max_word_length)]
+
+    return command
+
+
+def generate_filename_from_scenario(scenario: Dict) -> Path:
+    name = scenario["name"]
+    ngram_length = scenario["ngram_length"]
     sort = scenario["sort"]
     shuffle = scenario["shuffle"]
     prefixes = scenario["prefixes"]
@@ -64,47 +131,72 @@ for scenario in scenarios:
     filename = Path(
         f"{ngram_length}-gram"
         f"_{name}"
-        f"_{n_affixes}"
         f"_{affix_type}"
         f"{'_sorted' if sort else ''}"
         f"{'_shuffled' if shuffle else ''}"
         ".txt"
     )
 
-    command = [
-        "poetry",
-        "run",
-        "python",
-        "cw_ngrams.py",
-        "--ngram_length",
-        str(ngram_length),
-        "--n_affixes",
-        str(n_affixes),
-        "--n_examples",
-        str(n_examples),
-        "--prefixes" if prefixes else None,
-        "--suffixes" if suffixes else None,
-        "--sort" if sort else None,
-        "--shuffle" if shuffle else None,
-    ]
+    return filename
 
-    # Clean up missing pieces from the command
-    command = [piece for piece in command if piece is not None]
-    print(command)
-    p = Popen(
-        command,
-        stdout=open("results" / filename, "w"),
-    )
-    p.wait()
+
+def generate_link_from_scenario(scenario: Dict, filename: Path) -> str:
+
+    name = scenario["name"]
+    ngram_length = scenario["ngram_length"]
+    sort = scenario["sort"]
+    shuffle = scenario["shuffle"]
+    prefixes = scenario["prefixes"]
+    suffixes = scenario["suffixes"]
+    preamble = PREAMBLES[scenario["section"]]
+    
+    if prefixes:
+        affix_type = "prefixes"
+    elif suffixes:
+        affix_type = "suffixes"
+    else:
+        affix_type = "affixes"
 
     # Add a link to this scenario in the results README
-    list_name = f"{ngram_length}-letter {name} {affix_type}"
-    if sort:
-        list_name += " sorted"
-    if shuffle:
-        list_name += " shuffled"
-    readme += f"""- [{list_name}]({filename.as_posix()})\n"""
+    link_name = f"{preamble} {name.title()} {ngram_length}-gram {affix_type}"
 
-# Save the README after running all scenarios
-with open("results/README.md", "w") as f:
-    f.write(readme)
+    if sort:
+        link_name += ", sorted"
+    if shuffle:
+        link_name += ", shuffled"
+
+    readme_line = f"- [{link_name}]({filename.as_posix()})\n"
+    return readme_line
+
+
+def run_command(command: List[str], filename: str) -> None:
+    print(f"Generating {filename}; calling {' '.join(command)}")
+    process = Popen(command, stdout=open("results" / filename, "w"))
+    process.wait()
+
+
+def main():
+
+    readme = "# Results\n\n"
+
+    # Create scenarios and their commands, their results filenames, and a link to those results
+    scenarios = generate_scenarios()
+    commands = [generate_command_from_scenario(scenario) for scenario in scenarios]
+    filenames = [generate_filename_from_scenario(scenario) for scenario in scenarios]
+    links = [
+        generate_link_from_scenario(scenario, filename)
+        for scenario, filename in zip(scenarios, filenames)
+    ]
+
+    # Run each scenario, saving output to a file and updating the README
+    for command, filename, link in zip(commands, filenames, links):
+        run_command(command, filename)
+        readme += link
+
+    # Save the README after running all scenarios
+    with open("results/README.md", "w") as f:
+        f.write(readme)
+
+
+if __name__ == "__main__":
+    main()
