@@ -6,10 +6,10 @@ authors = ["Quentin Caudron <quentincaudron@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-thefuzz = "^0.19.0"
-python-Levenshtein = "^0.12.2"
-numpy = ">=1.10"
+python = "^3.8"
+thefuzz = "^0.19"
+python-Levenshtein = "^0.20"
+numpy = "^1.23"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

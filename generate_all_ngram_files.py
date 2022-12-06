@@ -22,9 +22,12 @@ BASE_SCENARIO = {
     "dissimilar": False,
     "section": "generic"
 }
+
 RANDOM_SCENARIO = BASE_SCENARIO.copy()
 RANDOM_SCENARIO.update({"name": "random", "sort": True, "shuffle": True})
 
+WEIGHTED_SCENARIO = BASE_SCENARIO.copy()
+WEIGHTED_SCENARIO.update({"name": "weighted", "sort": True, "shuffle": True})
 
 def generate_scenarios() -> List[Dict]:
 
@@ -84,7 +87,7 @@ def generate_command_from_scenario(scenario: Dict) -> List[str]:
         "poetry",
         "run",
         "python",
-        "cw_ngrams.py",
+        "generate_single_ngram_file.py",
         "--ngram_length",
         str(ngram_length),
         "--n_affixes",

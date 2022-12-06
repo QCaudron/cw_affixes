@@ -2,11 +2,8 @@ import random
 from collections import defaultdict
 from typing import DefaultDict, Dict, List, Optional, Tuple
 
-try:
-    import numpy as np
-    from thefuzz import fuzz  # type: ignore
-except ImportError:
-    pass
+import numpy as np
+from thefuzz import fuzz
 
 
 Affix = Tuple[str, int]
