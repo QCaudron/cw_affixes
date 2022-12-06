@@ -5,7 +5,7 @@ help:
 
 .PHONY: lint
 lint:  ## Check code for style, imports, type hints, and docstring coverage.
-	poetry run flake8 . 
+	poetry run flake8 --exclude .venv,__init__.py . 
 	poetry run black . --check --diff --quiet
 	poetry run isort . --check
 	poetry run mypy .
@@ -15,6 +15,11 @@ lint:  ## Check code for style, imports, type hints, and docstring coverage.
 format:  ## Format with black, fix imports with isort, and remove unused imports with autoflake.
 	poetry run black . --quiet
 	poetry run isort .
+
+
+.PHONY: ngrams
+ngrams:  ## Generate n-grams.
+	poetry run python generate_all_ngram_files.py
 
 
 .DEFAULT_GOAL := help

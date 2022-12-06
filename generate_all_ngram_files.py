@@ -2,7 +2,6 @@ from pathlib import Path
 from subprocess import Popen
 from typing import Dict, List
 
-
 PREAMBLES = {
     "exercises": "Head-copy exercise :",
     "generic": "Generic results :",
@@ -12,7 +11,7 @@ PREAMBLES = {
 BASE_SCENARIO = {
     "name": "top",
     "ngram_length": 3,
-    "n_affixes": 200,
+    "n_affixes": 300,
     "n_examples": 10,
     "sort": False,
     "shuffle": False,
@@ -20,14 +19,13 @@ BASE_SCENARIO = {
     "suffixes": False,
     "similar": False,
     "dissimilar": False,
-    "section": "generic"
+    "weighted": 0,
+    "section": "generic",
 }
 
 RANDOM_SCENARIO = BASE_SCENARIO.copy()
 RANDOM_SCENARIO.update({"name": "random", "sort": True, "shuffle": True})
 
-WEIGHTED_SCENARIO = BASE_SCENARIO.copy()
-WEIGHTED_SCENARIO.update({"name": "weighted", "sort": True, "shuffle": True})
 
 def generate_scenarios() -> List[Dict]:
 
@@ -36,15 +34,17 @@ def generate_scenarios() -> List[Dict]:
     # Create scenarios from the exercise base scenario
     for affix in ["prefixes", "suffixes"]:
         for sim in ["similar", "dissimilar"]:
-            scenario = BASE_SCENARIO.copy()
-            scenario["name"] = sim
-            scenario["section"] = "exercises"
-            scenario[affix] = True
-            scenario[sim] = True
-            scenario["n_examples"] = 5  # 10 is too hard to find with similar / dissimilar
-            scenario["min_word_length"] = 5
-            scenario["max_word_length"] = 8
-            scenarios.append(scenario)
+            for weighted in [0, 5]:
+                scenario = BASE_SCENARIO.copy()
+                scenario["name"] = sim
+                scenario["section"] = "exercises"
+                scenario[affix] = True
+                scenario[sim] = True
+                scenario["weighted"] = weighted
+                scenario["n_examples"] = 7  # 10 is too hard to find with similar / dissimilar
+                scenario["min_word_length"] = 5
+                scenario["max_word_length"] = 12
+                scenarios.append(scenario)
 
     # Create various scenarios for more generic results
     for scenario_type in [BASE_SCENARIO, RANDOM_SCENARIO]:
@@ -80,6 +80,7 @@ def generate_command_from_scenario(scenario: Dict) -> List[str]:
     suffixes = scenario["suffixes"]
     similar = scenario["similar"]
     dissimilar = scenario["dissimilar"]
+    weighted = scenario["weighted"]
     min_word_length = scenario.get("min_word_length")
     max_word_length = scenario.get("max_word_length")
 
@@ -87,13 +88,15 @@ def generate_command_from_scenario(scenario: Dict) -> List[str]:
         "poetry",
         "run",
         "python",
-        "generate_single_ngram_file.py",
+        "generate_ngrams_from_scenario.py",
         "--ngram_length",
         str(ngram_length),
         "--n_affixes",
         str(n_affixes),
         "--n_examples",
         str(n_examples),
+        "--weighted",
+        str(weighted),
     ]
 
     if prefixes:
@@ -134,6 +137,7 @@ def generate_filename_from_scenario(scenario: Dict) -> Path:
     filename = Path(
         f"{ngram_length}-gram"
         f"_{name}"
+        f"{'_weighted' if scenario['weighted'] > 0 else ''}"
         f"_{affix_type}"
         f"{'_sorted' if sort else ''}"
         f"{'_shuffled' if shuffle else ''}"
@@ -152,7 +156,12 @@ def generate_link_from_scenario(scenario: Dict, filename: Path) -> str:
     prefixes = scenario["prefixes"]
     suffixes = scenario["suffixes"]
     preamble = PREAMBLES[scenario["section"]]
-    
+
+    if scenario["weighted"] > 0:
+        weighted = "weighted"
+    else:
+        weighted = "unweighted"
+
     if prefixes:
         affix_type = "prefixes"
     elif suffixes:
@@ -161,7 +170,7 @@ def generate_link_from_scenario(scenario: Dict, filename: Path) -> str:
         affix_type = "affixes"
 
     # Add a link to this scenario in the results README
-    link_name = f"{preamble} {name.title()} {ngram_length}-gram {affix_type}"
+    link_name = f"{preamble} {name.title()} {weighted} {ngram_length}-gram {affix_type}"
 
     if sort:
         link_name += ", sorted"
@@ -172,7 +181,7 @@ def generate_link_from_scenario(scenario: Dict, filename: Path) -> str:
     return readme_line
 
 
-def run_command(command: List[str], filename: str) -> None:
+def run_command(command: List[str], filename: Path) -> None:
     print(f"Generating {filename}; calling {' '.join(command)}")
     process = Popen(command, stdout=open("results" / filename, "w"))
     process.wait()

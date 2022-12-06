@@ -114,5 +114,16 @@ def parse_args() -> argparse.Namespace:
         "--dissimilar", action="store_true", help="Return example words that are dissimilar."
     )
 
+    # Order affixes by CW weight
+    parser.add_argument(
+        "--weighted",
+        type=float,
+        default=0,
+        help=(
+            "If > 0, order affixes by CW weight (the greater, the more weight is important. "
+            "If == 1, CW weight as as important as frequency. Try 2 or more for fun results."
+        ),
+    )
+
     args = parser.parse_args()
     return args

@@ -3,8 +3,9 @@ from collections import defaultdict
 from typing import DefaultDict, Dict, List, Optional, Tuple
 
 import numpy as np
-from thefuzz import fuzz
+from thefuzz import fuzz  # type: ignore
 
+from .cw import str_to_weight
 
 Affix = Tuple[str, int]
 
@@ -128,6 +129,19 @@ def merge_affixes(
     return unique_affixes
 
 
+def weight_affixes(affixes: List[Affix], weighted: float) -> List[Affix]:
+
+    if weighted == 0:
+        return affixes
+
+    for idx in range(len(affixes)):
+        affix, freq = affixes[idx]
+        affixes[idx] = (affix, freq / (str_to_weight(affix) ** weighted))
+
+    affixes = sorted(affixes, key=lambda x: -x[1])
+    return affixes
+
+
 def _filter_examples(
     examples: Dict[str, List[str]],
     n_examples: int,
@@ -222,11 +236,12 @@ def find_examples(
     # Are we filtering any examples post-match ? If so, we need to find many more examples
     # so that we can filter them out for similarity or dissimilarity.
     filters = similar or dissimilar
-    target_n_examples: int = n_examples * 3 if filters else n_examples
+    target_n_examples: int = n_examples * 5 if filters else n_examples
 
     # Generate examples for each affix
     all_examples = defaultdict(list)
     n_affixes_found = 0
+
     for affix in affixes:
 
         for word in words:

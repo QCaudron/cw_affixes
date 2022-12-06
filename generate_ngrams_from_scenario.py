@@ -7,6 +7,7 @@ from cw_ngrams import (
     make_output,
     merge_affixes,
     parse_args,
+    weight_affixes,
 )
 
 
@@ -22,6 +23,7 @@ def main(
     max_example_length: Optional[int],
     similar: bool,
     dissimilar: bool,
+    weighted: float,
 ):
 
     # Load words and their frequencies from the data file
@@ -32,6 +34,9 @@ def main(
 
     # Combine prefix and suffix lists, or keep only the desired affix type
     affixes = merge_affixes(prefixes, suffixes, only_prefixes, only_suffixes, shuffle)
+
+    # Order affixes by CW weight if needed
+    affixes = weight_affixes(affixes, weighted)
 
     # Find examples of words that match the affixes, potentially filtered by criteria
     examples = find_examples(
@@ -69,4 +74,5 @@ if __name__ == "__main__":
         max_example_length=args.max_example_length,
         similar=args.similar,
         dissimilar=args.dissimilar,
+        weighted=args.weighted,
     )
