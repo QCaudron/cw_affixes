@@ -236,7 +236,7 @@ def find_examples(
     # Are we filtering any examples post-match ? If so, we need to find many more examples
     # so that we can filter them out for similarity or dissimilarity.
     filters = similar or dissimilar
-    target_n_examples: int = n_examples * 5 if filters else n_examples
+    target_n_examples: int = n_examples * 10 if filters else n_examples
 
     # Generate examples for each affix
     all_examples = defaultdict(list)

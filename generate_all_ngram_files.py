@@ -11,7 +11,7 @@ PREAMBLES = {
 BASE_SCENARIO = {
     "name": "top",
     "ngram_length": 3,
-    "n_affixes": 300,
+    "n_affixes": 500,
     "n_examples": 10,
     "sort": False,
     "shuffle": False,
@@ -158,9 +158,9 @@ def generate_link_from_scenario(scenario: Dict, filename: Path) -> str:
     preamble = PREAMBLES[scenario["section"]]
 
     if scenario["weighted"] > 0:
-        weighted = "weighted"
+        weighted = "weighted "
     else:
-        weighted = "unweighted"
+        weighted = ""
 
     if prefixes:
         affix_type = "prefixes"
@@ -170,7 +170,7 @@ def generate_link_from_scenario(scenario: Dict, filename: Path) -> str:
         affix_type = "affixes"
 
     # Add a link to this scenario in the results README
-    link_name = f"{preamble} {name.title()} {weighted} {ngram_length}-gram {affix_type}"
+    link_name = f"{preamble} {name.title()} {weighted}{ngram_length}-gram {affix_type}"
 
     if sort:
         link_name += ", sorted"
